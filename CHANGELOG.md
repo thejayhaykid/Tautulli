@@ -1,5 +1,47 @@
 # Changelog
 
+## v2.1.28 (2019-03-10)
+
+* Monitoring:
+  * New: Added secure/insecure connection icon on the activity cards. Requires Plex Media Server v1.15+
+* Other:
+  * Change: Improved mass deleting of all images from Cloudinary. Requires all previous images on Cloudinary to be manually tagged with "tautulli". New uploads are automatically tagged.
+
+
+## v2.1.27-beta (2019-03-03)
+
+* Monitoring:
+  * Fix: Error when playing synced optimized versions.
+  * Change: Show message to complete the setup wizard instead of error communicating with server message.
+  * Change: URL changed on Plex.tv for Plex Media Server beta updates.
+* Notifications:
+  * New: Show the media type exclusion tags in the text preview modal.
+  * Fix: Unicode error in the Email notification failed response message.
+  * Fix: Error when a notification agent response is missing the "Content-Type" header.
+* UI:
+  * Fix: Usernames were not being sanitized in dropdown selectors.
+  * Change: Different display of "All" recently added items on the homepage due to change in the Plex Media Server v1.15+ API.
+* API:
+  * New: Added current Tautulli version to update_check API response.
+  * Change: API no longer returns sanitized HTML response data.
+* Other:
+  * New: Added auto-restart to systemd init script.
+  * Fix: Patreon donation URL.
+  * Remove: Crypto donation options.
+
+
+## v2.1.26 (2018-12-01)
+
+* Monitoring:
+  * Fix: Resume event not being triggered after buffering.
+* Notifications:
+  * New: Added user email as a notification parameter.
+* Graphs:
+  * Fix: History model showing no results for stream info graph.
+* API:
+  * Fix: API returning error when missing a cmd.
+
+
 ## v2.1.25 (2018-11-03)
 
 * Monitoring:
