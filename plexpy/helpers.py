@@ -252,6 +252,14 @@ def human_duration(s, sig='dhms'):
     return hd
 
 
+def format_timedelta_Hms(td):
+    s = td.total_seconds()
+    hours = s // 3600
+    minutes = (s % 3600) // 60
+    seconds = s % 60
+    return '{:02d}:{:02d}:{:02d}'.format(int(hours), int(minutes), int(seconds))
+
+
 def get_age(date):
 
     try:
@@ -1117,13 +1125,13 @@ def get_plexpy_url(hostname=None):
     else:
         hostname = hostname or plexpy.CONFIG.HTTP_HOST
 
-    if plexpy.CONFIG.HTTP_PORT not in (80, 443):
-        port = ':' + str(plexpy.CONFIG.HTTP_PORT)
+    if plexpy.HTTP_PORT not in (80, 443):
+        port = ':' + str(plexpy.HTTP_PORT)
     else:
         port = ''
 
-    if plexpy.CONFIG.HTTP_ROOT.strip('/'):
-        root = '/' + plexpy.CONFIG.HTTP_ROOT.strip('/')
+    if plexpy.HTTP_ROOT.strip('/'):
+        root = '/' + plexpy.HTTP_ROOT.strip('/')
     else:
         root = ''
 
@@ -1170,3 +1178,18 @@ def split_args(args=None):
         return [arg.decode(plexpy.SYS_ENCODING, 'ignore')
                 for arg in shlex.split(args.encode(plexpy.SYS_ENCODING, 'ignore'))]
     return []
+
+def mask_config_passwords(config):
+    if isinstance(config, list):
+        for cfg in config:
+            if 'password' in cfg.get('name', '') and cfg.get('value', '') != '':
+                cfg['value'] = '    '
+
+    elif isinstance(config, dict):
+        for cfg, val in config.iteritems():
+            # Check for a password config keys and if the password is not blank
+            if 'password' in cfg and val != '':
+                # Set the password to blank so it is not exposed in the HTML form
+                config[cfg] = '    '
+
+    return config

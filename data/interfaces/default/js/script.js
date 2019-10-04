@@ -560,16 +560,21 @@ function uuidv4() {
     });
 }
 
-var x_plex_headers = {
-    'Accept': 'application/json',
-    'X-Plex-Product': 'Tautulli',
-    'X-Plex-Version': 'Plex OAuth',
-    'X-Plex-Client-Identifier': getLocalStorage('Tautulli_ClientID', uuidv4(), false),
-    'X-Plex-Platform': p.name,
-    'X-Plex-Platform-Version': p.version,
-    'X-Plex-Device': p.os,
-    'X-Plex-Device-Name': p.name
-};
+function getPlexHeaders() {
+    return {
+        'Accept': 'application/json',
+        'X-Plex-Product': 'Tautulli',
+        'X-Plex-Version': 'Plex OAuth',
+        'X-Plex-Client-Identifier': getLocalStorage('Tautulli_ClientID', uuidv4(), false),
+        'X-Plex-Platform': p.name,
+        'X-Plex-Platform-Version': p.version,
+        'X-Plex-Model': 'Plex OAuth',
+        'X-Plex-Device': p.os,
+        'X-Plex-Device-Name': p.name,
+        'X-Plex-Device-Screen-Resolution': window.screen.width + 'x' + window.screen.height,
+        'X-Plex-Language': 'en'
+    };
+}
 
 var plex_oauth_window = null;
 const plex_oauth_loader = '<style>' +
@@ -620,6 +625,7 @@ function closePlexOAuthWindow() {
 }
 
 getPlexOAuthPin = function () {
+    var x_plex_headers = getPlexHeaders();
     var deferred = $.Deferred();
 
     $.ajax({
@@ -648,10 +654,25 @@ function PlexOAuth(success, error, pre) {
     $(plex_oauth_window.document.body).html(plex_oauth_loader);
 
     getPlexOAuthPin().then(function (data) {
+        var x_plex_headers = getPlexHeaders();
         const pin = data.pin;
         const code = data.code;
 
-        plex_oauth_window.location = 'https://app.plex.tv/auth/#!?clientID=' + x_plex_headers['X-Plex-Client-Identifier'] + '&code=' + code;
+        var oauth_params = {
+            'clientID': x_plex_headers['X-Plex-Client-Identifier'],
+            'context[device][product]': x_plex_headers['X-Plex-Product'],
+            'context[device][version]': x_plex_headers['X-Plex-Version'],
+            'context[device][platform]': x_plex_headers['X-Plex-Platform'],
+            'context[device][platformVersion]': x_plex_headers['X-Plex-Platform-Version'],
+            'context[device][device]': x_plex_headers['X-Plex-Device'],
+            'context[device][deviceName]': x_plex_headers['X-Plex-Device-Name'],
+            'context[device][model]': x_plex_headers['X-Plex-Model'],
+            'context[device][screenResolution]': x_plex_headers['X-Plex-Device-Screen-Resolution'],
+            'context[device][layout]': 'desktop',
+            'code': code
+        }
+
+        plex_oauth_window.location = 'https://app.plex.tv/auth/#!?' + encodeData(oauth_params);
         polling = pin;
 
         (function poll() {
@@ -689,4 +710,10 @@ function PlexOAuth(success, error, pre) {
             error()
         }
     });
+}
+
+function encodeData(data) {
+    return Object.keys(data).map(function(key) {
+        return [key, data[key]].map(encodeURIComponent).join("=");
+    }).join("&");
 }
